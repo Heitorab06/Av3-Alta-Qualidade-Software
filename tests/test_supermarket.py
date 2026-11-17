@@ -221,15 +221,10 @@ def test_two_for_amount_discount_exact_quantity():
     assert -1.00 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-@pytest.mark.xfail(
-    reason="Bug existente no código legado: shopping_cart.py linha 62 usa divisão '/' em vez de '//'",
-    strict=True,
-)
 def test_two_for_amount_discount_with_extra_item():
     """
     Cenário: Promoção '2 por R$ 3,00' levando 3 unidades (R$ 2,00 cada).
     Objetivo: 2 itens saem por R$ 3,00 + 1 item avulso por R$ 2,00 = R$ 5,00.
-    Nota: Atualmente falha devido a um bug no cálculo de divisão de float no código original.
     """
     catalog = FakeCatalog()
     cherry_tomatoes = Product("cherry tomatoes", ProductUnit.EACH)
