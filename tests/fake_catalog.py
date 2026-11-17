@@ -1,6 +1,9 @@
 """Módulo de implementação simulada (in-memory) do catálogo para testes unitários."""
 
+from typing import Optional
+
 from catalog import SupermarketCatalog
+from model_objects import Product
 
 
 class FakeCatalog(SupermarketCatalog):
@@ -9,21 +12,21 @@ class FakeCatalog(SupermarketCatalog):
     Evita chamadas a bancos de dados externos.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Inicializa os dicionários internos de produtos e preços em memória."""
-        self.products = {}
-        self.prices = {}
+        self.products: dict[str, Product] = {}
+        self.prices: dict[str, float] = {}
 
-    def add_product(self, product, price):
+    def add_product(self, product: Product, price: float) -> None:
         """Registra o produto e seu respectivo preço unitário."""
         self.products[product.name] = product
         self.prices[product.name] = price
 
-    def unit_price(self, product):
+    def unit_price(self, product: Product) -> float:
         """Retorna o preço unitário do produto cadastrado."""
         return self.prices[product.name]
 
-    def find_product_by_name(self, name):
+    def find_product_by_name(self, name: str) -> Optional[Product]:
         """Busca um produto cadastrado pelo nome."""
         return self.products.get(name, None)
 

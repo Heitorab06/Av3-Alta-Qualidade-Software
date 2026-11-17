@@ -1,8 +1,9 @@
 """Módulo de estratégias de cálculo de ofertas (Strategy) e fábrica de promoções (Factory Method)."""
 
 from abc import ABC, abstractmethod
+from typing import Optional, Union
 
-from model_objects import Discount, SpecialOfferType
+from model_objects import Discount, Product, SpecialOfferType
 
 
 class OfferStrategy(ABC):
@@ -12,14 +13,18 @@ class OfferStrategy(ABC):
     """
 
     @abstractmethod
-    def calculate_discount(self, product, quantity, unit_price):
+    def calculate_discount(
+        self, product: Product, quantity: float, unit_price: float
+    ) -> Optional[Discount]:
         """Calcula e retorna um objeto Discount se aplicável, ou None caso contrário."""
 
 
 class ThreeForTwoStrategy(OfferStrategy):
     """Estratégia para a promoção 'Leve 3, Pague 2' (não exige parâmetros extras)."""
 
-    def calculate_discount(self, product, quantity, unit_price):
+    def calculate_discount(
+        self, product: Product, quantity: float, unit_price: float
+    ) -> Optional[Discount]:
         """Calcula o desconto de 1 unidade gratuita a cada grupo de 3 unidades."""
         quantity_as_int = int(quantity)
         if quantity_as_int < 3:
@@ -35,11 +40,13 @@ class ThreeForTwoStrategy(OfferStrategy):
 class PercentageDiscountStrategy(OfferStrategy):
     """Estratégia para desconto percentual direto sobre o valor total do item."""
 
-    def __init__(self, percent):
+    def __init__(self, percent: float) -> None:
         """Inicializa a estratégia com o percentual de desconto a ser aplicado."""
-        self.percent = percent
+        self.percent: float = percent
 
-    def calculate_discount(self, product, quantity, unit_price):
+    def calculate_discount(
+        self, product: Product, quantity: float, unit_price: float
+    ) -> Optional[Discount]:
         """Calcula o abatimento percentual sobre o preço total da quantidade comprada."""
         discount_amount = quantity * unit_price * (self.percent / 100.0)
         return Discount(product, f"{self.percent}% off", -discount_amount)
@@ -48,12 +55,14 @@ class PercentageDiscountStrategy(OfferStrategy):
 class AmountForQuantityStrategy(OfferStrategy):
     """Estratégia para promoções do tipo 'Leve N unidades por um valor fixo' (ex: 2 por X, 5 por Y)."""
 
-    def __init__(self, required_quantity, amount):
+    def __init__(self, required_quantity: int, amount: float) -> None:
         """Inicializa a estratégia com a quantidade exigida por pacote e o preço promocional do pacote."""
-        self.required_quantity = required_quantity
-        self.amount = amount
+        self.required_quantity: int = required_quantity
+        self.amount: float = amount
 
-    def calculate_discount(self, product, quantity, unit_price):
+    def calculate_discount(
+        self, product: Product, quantity: float, unit_price: float
+    ) -> Optional[Discount]:
         """Calcula o desconto para pacotes fechados de N unidades pelo valor promocional."""
         quantity_as_int = int(quantity)
         if quantity_as_int < self.required_quantity:
@@ -72,16 +81,20 @@ class OfferFactory:
     Isola a lógica de instanciação das promoções concretas.
     """
 
-    def create_offer(self, offer_type, argument=None):
+    def create_offer(
+        self,
+        offer_type: Union[SpecialOfferType, OfferStrategy],
+        argument: Optional[float] = None,
+    ) -> OfferStrategy:
         """Retorna a estratégia de oferta correspondente ao tipo informado."""
         if isinstance(offer_type, OfferStrategy):
             return offer_type
         if offer_type == SpecialOfferType.THREE_FOR_TWO:
             return ThreeForTwoStrategy()
-        if offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT:
+        if offer_type == SpecialOfferType.TEN_PERCENT_DISCOUNT and argument is not None:
             return PercentageDiscountStrategy(argument)
-        if offer_type == SpecialOfferType.TWO_FOR_AMOUNT:
+        if offer_type == SpecialOfferType.TWO_FOR_AMOUNT and argument is not None:
             return AmountForQuantityStrategy(2, argument)
-        if offer_type == SpecialOfferType.FIVE_FOR_AMOUNT:
+        if offer_type == SpecialOfferType.FIVE_FOR_AMOUNT and argument is not None:
             return AmountForQuantityStrategy(5, argument)
         raise ValueError(f"Tipo de oferta não suportado: {offer_type}")

@@ -1,17 +1,20 @@
 """Módulo de interfaces e contratos para o catálogo de produtos do supermercado."""
 
 from abc import ABC, abstractmethod
+from typing import Optional
+
+from model_objects import Product
 
 
 class CatalogReader(ABC):
     """Interface de leitura do catálogo para consulta de preços e produtos no caixa (ISP/LSP)."""
 
     @abstractmethod
-    def unit_price(self, product):
+    def unit_price(self, product: Product) -> float:
         """Retorna o preço unitário de um produto."""
 
     @abstractmethod
-    def find_product_by_name(self, name):
+    def find_product_by_name(self, name: str) -> Optional[Product]:
         """Busca e retorna um produto pelo nome, ou None caso não exista."""
 
 
@@ -19,7 +22,7 @@ class CatalogWriter(ABC):
     """Interface de escrita do catálogo para cadastro administrativo de produtos (ISP/LSP)."""
 
     @abstractmethod
-    def add_product(self, product, price):
+    def add_product(self, product: Product, price: float) -> None:
         """Adiciona um produto e seu preço ao catálogo."""
 
 
