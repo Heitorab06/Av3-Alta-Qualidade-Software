@@ -19,4 +19,8 @@ class FakeCatalog(SupermarketCatalog):
         """Retorna o preço unitário do produto cadastrado."""
         return self.prices[product.name]
 
+    def find_product_by_name(self, name):
+        """Busca um produto cadastrado pelo nome."""
+        return self.products.get(name, None)
+
 
