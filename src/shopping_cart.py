@@ -14,8 +14,8 @@ class ShoppingCart:
 
     @property
     def items(self):
-        """Lista com cada registro de adição de item ao carrinho."""
-        return self._items
+        """Lista com cada registro de adição de item ao carrinho (cópia defensiva)."""
+        return self._items[:]
 
     def add_item(self, product):
         """Adiciona 1 unidade do produto ao carrinho."""
@@ -23,8 +23,8 @@ class ShoppingCart:
 
     @property
     def product_quantities(self):
-        """Dicionário consolidado com {produto: quantidade_total}."""
-        return self._product_quantities
+        """Dicionário consolidado com {produto: quantidade_total} (cópia defensiva)."""
+        return self._product_quantities.copy()
 
     def add_item_quantity(self, product, quantity):
         """Adiciona uma quantidade específica do produto ao carrinho."""

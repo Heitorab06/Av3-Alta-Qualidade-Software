@@ -1,4 +1,3 @@
-
 class ReceiptItem:
     """Representa uma linha de item comprado no recibo (produto, quantidade, preço unitário e total bruto)."""
     def __init__(self, product, quantity, price, total_price):
