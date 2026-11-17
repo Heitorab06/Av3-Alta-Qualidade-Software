@@ -43,3 +43,15 @@ class Receipt:
     def discounts(self):
         """Retorna uma cópia da lista de descontos aplicados."""
         return self._discounts[:]
+
+
+class ReceiptFactory:
+    """
+    Padrão Factory Method para criação de instâncias de Receipt (DIP / SRP).
+    Desacopla o operador de caixa (Teller) da instanciação direta da classe concreta Receipt.
+    """
+
+    def create_receipt(self):
+        """Cria e retorna uma nova instância de Receipt."""
+        return Receipt()
+

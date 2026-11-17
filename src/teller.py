@@ -1,5 +1,5 @@
-from model_objects import Offer
-from receipt import Receipt
+from offers import OfferFactory
+from receipt import ReceiptFactory
 
 
 class Teller:
@@ -8,23 +8,25 @@ class Teller:
     Responsável por gerenciar as ofertas vigentes e realizar o checkout dos carrinhos de compra.
     """
 
-    def __init__(self, catalog):
+    def __init__(self, catalog, receipt_factory=None, offer_factory=None):
         self.catalog = catalog
+        self.receipt_factory = receipt_factory or ReceiptFactory()
+        self.offer_factory = offer_factory or OfferFactory()
         self.offers = {}
 
-    def add_special_offer(self, offer_type, product, argument):
-        """Cadastra uma promoção/oferta ativa para um produto específico."""
-        self.offers[product] = Offer(offer_type, product, argument)
+    def add_special_offer(self, offer_type, product, argument=None):
+        """Cadastra uma promoção/oferta ativa para um produto específico usando a fábrica de ofertas."""
+        self.offers[product] = self.offer_factory.create_offer(offer_type, argument)
 
     def checks_out_articles_from(self, the_cart):
         """
         Processa as compras do carrinho:
-        1. Cria o recibo.
+        1. Cria o recibo por meio da fábrica (ReceiptFactory).
         2. Consulta o preço unitário e calcula o valor total de cada item.
-        3. Delega o cálculo das ofertas e descontos para o carrinho.
+        3. Delega o cálculo das ofertas e descontos.
         Retorna o recibo finalizado (Receipt).
         """
-        receipt = Receipt()
+        receipt = self.receipt_factory.create_receipt()
         product_quantities = the_cart.items
         for pq in product_quantities:
             p = pq.product
@@ -38,5 +40,5 @@ class Teller:
         return receipt
 
     def product_with_name(self, name):
-        """Busca um produto no catálogo pelo nome."""
-        return self.catalog.products.get(name, None)
+        """Busca um produto no catálogo pelo nome por meio do contrato de leitura (CatalogReader)."""
+        return self.catalog.find_product_by_name(name)
