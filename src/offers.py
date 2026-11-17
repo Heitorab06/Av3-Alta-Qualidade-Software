@@ -41,7 +41,9 @@ class PercentageDiscountStrategy(OfferStrategy):
     """Estratégia para desconto percentual direto sobre o valor total do item."""
 
     def __init__(self, percent: float) -> None:
-        """Inicializa a estratégia com o percentual de desconto a ser aplicado."""
+        """Inicializa a estratégia com o percentual de desconto a ser aplicado (entre 0 e 100)."""
+        if percent < 0.0 or percent > 100.0:
+            raise ValueError("O percentual de desconto deve estar entre 0 e 100 (INV-03).")
         self.percent: float = percent
 
     def calculate_discount(
@@ -57,6 +59,8 @@ class AmountForQuantityStrategy(OfferStrategy):
 
     def __init__(self, required_quantity: int, amount: float) -> None:
         """Inicializa a estratégia com a quantidade exigida por pacote e o preço promocional do pacote."""
+        if required_quantity <= 0 or amount < 0.0:
+            raise ValueError("Quantidade do pacote deve ser positiva e valor não negativo (INV-04).")
         self.required_quantity: int = required_quantity
         self.amount: float = amount
 
@@ -71,7 +75,8 @@ class AmountForQuantityStrategy(OfferStrategy):
         number_of_packs = quantity_as_int // self.required_quantity
         remainder = quantity_as_int % self.required_quantity
         total_with_discount = (self.amount * number_of_packs) + (remainder * unit_price)
-        discount_amount = (unit_price * quantity) - total_with_discount
+        gross_total = unit_price * quantity
+        discount_amount = min(gross_total - total_with_discount, gross_total)
         return Discount(product, f"{self.required_quantity} for {self.amount}", -discount_amount)
 
 

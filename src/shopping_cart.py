@@ -3,7 +3,7 @@
 from typing import Union
 
 from catalog import CatalogReader
-from model_objects import Offer, Product, ProductQuantity
+from model_objects import Offer, Product, ProductQuantity, ProductUnit
 from offers import OfferFactory, OfferStrategy
 from receipt import Receipt
 
@@ -34,7 +34,12 @@ class ShoppingCart:
         return self._product_quantities.copy()
 
     def add_item_quantity(self, product: Product, quantity: float) -> None:
-        """Adiciona uma quantidade específica do produto ao carrinho."""
+        """Adiciona uma quantidade específica do produto ao carrinho, validando as invariantes."""
+        if quantity <= 0.0:
+            raise ValueError("A quantidade adicionada deve ser maior que zero (INV-04).")
+        if product.unit == ProductUnit.EACH and not float(quantity).is_integer():
+            raise ValueError("Produtos vendidos por unidade (EACH) exigem quantidades inteiras (INV-05).")
+
         self._items.append(ProductQuantity(product, quantity))
         if product in self._product_quantities:
             self._product_quantities[product] += quantity

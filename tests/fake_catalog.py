@@ -18,7 +18,9 @@ class FakeCatalog(SupermarketCatalog):
         self.prices: dict[str, float] = {}
 
     def add_product(self, product: Product, price: float) -> None:
-        """Registra o produto e seu respectivo preço unitário."""
+        """Registra o produto e seu respectivo preço unitário, validando preço não negativo."""
+        if price < 0.0:
+            raise ValueError("O preço unitário não pode ser negativo (INV-04).")
         self.products[product.name] = product
         self.prices[product.name] = price
 

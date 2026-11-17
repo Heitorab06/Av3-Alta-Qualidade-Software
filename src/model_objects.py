@@ -58,6 +58,8 @@ class Discount:
 
     def __init__(self, product: Product, description: str, discount_amount: float) -> None:
         """Inicializa o desconto com o produto beneficiado, a descrição textual e o valor abatido."""
+        if discount_amount > 0.0:
+            raise ValueError("O valor do desconto deve ser menor ou igual a zero (INV-02).")
         self.product: Product = product
         self.description: str = description
         self.discount_amount: float = discount_amount
