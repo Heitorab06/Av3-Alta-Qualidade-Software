@@ -1,3 +1,5 @@
+"""Módulo do operador de caixa (Teller) responsável pelo fluxo de checkout e registro de ofertas."""
+
 from offers import OfferFactory
 from receipt import ReceiptFactory
 
@@ -9,6 +11,7 @@ class Teller:
     """
 
     def __init__(self, catalog, receipt_factory=None, offer_factory=None):
+        """Inicializa o operador de caixa com o catálogo de leitura e as fábricas de recibo e oferta."""
         self.catalog = catalog
         self.receipt_factory = receipt_factory or ReceiptFactory()
         self.offer_factory = offer_factory or OfferFactory()

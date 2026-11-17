@@ -1,3 +1,5 @@
+"""Módulo de implementação simulada (in-memory) do catálogo para testes unitários."""
+
 from catalog import SupermarketCatalog
 
 
@@ -6,7 +8,9 @@ class FakeCatalog(SupermarketCatalog):
     Implementação em memória do catálogo para uso em testes de unidade.
     Evita chamadas a bancos de dados externos.
     """
+
     def __init__(self):
+        """Inicializa os dicionários internos de produtos e preços em memória."""
         self.products = {}
         self.prices = {}
 

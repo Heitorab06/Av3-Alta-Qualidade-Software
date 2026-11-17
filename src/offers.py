@@ -1,3 +1,5 @@
+"""Módulo de estratégias de cálculo de ofertas (Strategy) e fábrica de promoções (Factory Method)."""
+
 from abc import ABC, abstractmethod
 
 from model_objects import Discount, SpecialOfferType
@@ -18,6 +20,7 @@ class ThreeForTwoStrategy(OfferStrategy):
     """Estratégia para a promoção 'Leve 3, Pague 2' (não exige parâmetros extras)."""
 
     def calculate_discount(self, product, quantity, unit_price):
+        """Calcula o desconto de 1 unidade gratuita a cada grupo de 3 unidades."""
         quantity_as_int = int(quantity)
         if quantity_as_int < 3:
             return None
@@ -33,9 +36,11 @@ class PercentageDiscountStrategy(OfferStrategy):
     """Estratégia para desconto percentual direto sobre o valor total do item."""
 
     def __init__(self, percent):
+        """Inicializa a estratégia com o percentual de desconto a ser aplicado."""
         self.percent = percent
 
     def calculate_discount(self, product, quantity, unit_price):
+        """Calcula o abatimento percentual sobre o preço total da quantidade comprada."""
         discount_amount = quantity * unit_price * (self.percent / 100.0)
         return Discount(product, f"{self.percent}% off", -discount_amount)
 
@@ -44,10 +49,12 @@ class AmountForQuantityStrategy(OfferStrategy):
     """Estratégia para promoções do tipo 'Leve N unidades por um valor fixo' (ex: 2 por X, 5 por Y)."""
 
     def __init__(self, required_quantity, amount):
+        """Inicializa a estratégia com a quantidade exigida por pacote e o preço promocional do pacote."""
         self.required_quantity = required_quantity
         self.amount = amount
 
     def calculate_discount(self, product, quantity, unit_price):
+        """Calcula o desconto para pacotes fechados de N unidades pelo valor promocional."""
         quantity_as_int = int(quantity)
         if quantity_as_int < self.required_quantity:
             return None

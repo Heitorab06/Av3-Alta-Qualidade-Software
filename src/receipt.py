@@ -1,6 +1,11 @@
+"""Módulo de representação de recibos (Receipt), itens faturados e fábrica de recibos."""
+
+
 class ReceiptItem:
     """Representa uma linha de item comprado no recibo (produto, quantidade, preço unitário e total bruto)."""
+
     def __init__(self, product, quantity, price, total_price):
+        """Inicializa o item do recibo com produto, quantidade, preço unitário e preço total."""
         self.product = product
         self.quantity = quantity
         self.price = price
@@ -12,7 +17,9 @@ class Receipt:
     Comprovante / cupom fiscal de compras.
     Armazena os itens faturados e os descontos concedidos, calculando o valor final total.
     """
+
     def __init__(self):
+        """Inicializa um recibo vazio sem itens e sem descontos."""
         self._items = []
         self._discounts = []
 

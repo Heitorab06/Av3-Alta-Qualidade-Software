@@ -1,3 +1,5 @@
+"""Módulo de interfaces e contratos para o catálogo de produtos do supermercado."""
+
 from abc import ABC, abstractmethod
 
 

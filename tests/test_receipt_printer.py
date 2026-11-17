@@ -1,3 +1,5 @@
+"""Testes unitários para formatação e impressão de cupons via ReceiptPrinter."""
+
 from model_objects import Product, ProductUnit, SpecialOfferType
 from shopping_cart import ShoppingCart
 from teller import Teller

@@ -1,3 +1,5 @@
+"""Módulo do carrinho de compras responsável pelo armazenamento e consolidação de itens."""
+
 from model_objects import ProductQuantity
 from offers import OfferFactory, OfferStrategy
 
@@ -9,6 +11,7 @@ class ShoppingCart:
     """
 
     def __init__(self):
+        """Inicializa o carrinho vazio."""
         self._items = []
         self._product_quantities = {}
 

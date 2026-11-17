@@ -1,3 +1,5 @@
+"""Testes unitários para o fluxo de checkout, descontos promocionais e recibos do supermercado."""
+
 import pytest
 
 from model_objects import Product, ProductUnit, SpecialOfferType
