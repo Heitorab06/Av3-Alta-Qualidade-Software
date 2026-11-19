@@ -1,6 +1,6 @@
-"""Módulo do carrinho de compras responsável pelo armazenamento e consolidação de itens."""
+"""Carrinho de compras responsável pelo armazenamento e consolidação de itens."""
 
-from typing import Union
+from collections.abc import Mapping
 
 from catalog import CatalogReader
 from model_objects import Offer, Product, ProductQuantity, ProductUnit
@@ -9,9 +9,9 @@ from receipt import Receipt
 
 
 class ShoppingCart:
-    """
-    Carrinho de compras do cliente.
-    Responsável por manter o histórico de adições e as quantidades consolidadas por produto (SRP).
+    """Carrinho de compras do cliente.
+
+    Mantém o histórico de adições e as quantidades consolidadas por produto (SRP).
     """
 
     def __init__(self) -> None:
@@ -21,7 +21,7 @@ class ShoppingCart:
 
     @property
     def items(self) -> list[ProductQuantity]:
-        """Lista com cada registro de adição de item ao carrinho (cópia defensiva)."""
+        """Lista com cada registro de adição de item (cópia defensiva)."""
         return self._items[:]
 
     def add_item(self, product: Product) -> None:
@@ -34,11 +34,16 @@ class ShoppingCart:
         return self._product_quantities.copy()
 
     def add_item_quantity(self, product: Product, quantity: float) -> None:
-        """Adiciona uma quantidade específica do produto ao carrinho, validando as invariantes."""
+        """Adiciona uma quantidade do produto ao carrinho validando invariantes."""
         if quantity <= 0.0:
-            raise ValueError("A quantidade adicionada deve ser maior que zero (INV-04).")
+            raise ValueError(
+                "A quantidade adicionada deve ser maior que zero (INV-04)."
+            )
         if product.unit == ProductUnit.EACH and not float(quantity).is_integer():
-            raise ValueError("Produtos vendidos por unidade (EACH) exigem quantidades inteiras (INV-05).")
+            raise ValueError(
+                "Produtos vendidos por unidade (EACH) exigem quantidades inteiras "
+                "(INV-05)."
+            )
 
         self._items.append(ProductQuantity(product, quantity))
         if product in self._product_quantities:
@@ -49,12 +54,12 @@ class ShoppingCart:
     def handle_offers(
         self,
         receipt: Receipt,
-        offers: dict[Product, Union[OfferStrategy, Offer]],
+        offers: Mapping[Product, OfferStrategy | Offer],
         catalog: CatalogReader,
     ) -> None:
-        """
-        Delega o cálculo de descontos para a estratégia (OfferStrategy) associada a cada produto,
-        adicionando os descontos elegíveis ao recibo (OCP / SRP).
+        """Delega o cálculo de descontos às estratégias e registra no recibo.
+
+        Preserva compatibilidade com objetos Offer legados (OCP / SRP).
         """
         offer_factory = OfferFactory()
         for product, quantity in self._product_quantities.items():

@@ -1,4 +1,4 @@
-"""Módulo responsável pela formatação e impressão textual de cupons fiscais (Receipt)."""
+"""Formatação e impressão textual de cupons fiscais (Receipt)."""
 
 from model_objects import Discount, ProductUnit
 from receipt import Receipt, ReceiptItem
@@ -12,7 +12,7 @@ class ReceiptPrinter:
         self.columns: int = columns
 
     def print_receipt(self, receipt: Receipt) -> str:
-        """Gera a representação textual completa do recibo com itens, descontos e valor total."""
+        """Gera a representação textual do recibo com itens, descontos e total."""
         result = ""
         for item in receipt.items:
             receipt_item = self.print_receipt_item(item)
@@ -27,7 +27,7 @@ class ReceiptPrinter:
         return str(result)
 
     def print_receipt_item(self, item: ReceiptItem) -> str:
-        """Formata a linha principal de um item comprado e a sublinha quando a quantidade difere de 1."""
+        """Formata a linha do item e a sublinha quando a quantidade difere de 1."""
         total_price_printed = self.print_price(item.total_price)
         name = item.product.name
         line = self.format_line_with_whitespace(name, total_price_printed)
@@ -36,7 +36,7 @@ class ReceiptPrinter:
         return line
 
     def format_line_with_whitespace(self, name: str, value: str) -> str:
-        """Alinha o nome à esquerda e o valor à direita preenchendo o espaço intermediário."""
+        """Alinha nome à esquerda e valor à direita preenchendo com espaços."""
         whitespace_size = self.columns - len(name) - len(value)
         whitespace = " " * whitespace_size
         return f"{name}{whitespace}{value}\n"
@@ -46,7 +46,7 @@ class ReceiptPrinter:
         return f"{price:.2f}"
 
     def print_quantity(self, item: ReceiptItem) -> str:
-        """Formata a quantidade do item conforme sua unidade (inteiro para EACH, 3 casas para KILO)."""
+        """Formata a quantidade conforme a unidade (inteiro EACH, 3 casas KILO)."""
         if ProductUnit.EACH == item.product.unit:
             return str(item.quantity)
         return f"{item.quantity:.3f}"
@@ -62,4 +62,3 @@ class ReceiptPrinter:
         name = "Total: "
         value = self.print_price(receipt.total_price())
         return self.format_line_with_whitespace(name, value)
-

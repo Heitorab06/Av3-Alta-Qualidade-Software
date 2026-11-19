@@ -1,4 +1,4 @@
-"""Testes unitários para o fluxo de checkout, descontos promocionais e recibos do supermercado."""
+"""Testes unitários para o fluxo de checkout, descontos promocionais e recibos."""
 
 import pytest
 
@@ -14,11 +14,11 @@ from teller import Teller
 from tests.fake_catalog import FakeCatalog
 
 
-def test_ten_percent_discount():
-    """
-    Cenário: Uma promoção de 10% está ativa para escovas de dente (toothbrush),
-    mas o cliente compra apenas maçãs (apples).
-    Objetivo: Garantir que nenhuma promoção seja aplicada indevidamente a itens não elegíveis.
+def test_ten_percent_discount() -> None:
+    """Garante que oferta em outro produto não se aplica a itens não elegíveis.
+
+    Promoção de 10% está ativa para escovas (toothbrush), mas o cliente compra
+    apenas maçãs (apples).
     """
     # 1. Configura produtos e preços no catálogo
     catalog = FakeCatalog()
@@ -38,12 +38,9 @@ def test_ten_percent_discount():
     # 4. Finaliza a compra (checkout) gerando o recibo
     receipt = teller.checks_out_articles_from(cart)
 
-    # 5. Asserções:
-    # O total a pagar deve ser exatamente 2.5 * 1.99 = 4.975
+    # 5. Asserções: total esperado = 2.5 * 1.99 = 4.975
     assert 4.975 == pytest.approx(receipt.total_price(), 0.01)
-    # Nenhum desconto deve ser aplicado
     assert [] == receipt.discounts
-    # Deve conter apenas 1 linha/item no recibo
     assert 1 == len(receipt.items)
     receipt_item = receipt.items[0]
     assert apples == receipt_item.product
@@ -52,11 +49,8 @@ def test_ten_percent_discount():
     assert 2.5 == receipt_item.quantity
 
 
-def test_empty_cart():
-    """
-    Cenário: Cliente finaliza a compra com o carrinho vazio.
-    Objetivo: Garantir que o total seja 0 e não existam itens nem descontos no recibo.
-    """
+def test_empty_cart() -> None:
+    """Garante total 0, sem itens e sem descontos para carrinho vazio."""
     catalog = FakeCatalog()
     teller = Teller(catalog)
     cart = ShoppingCart()
@@ -68,11 +62,8 @@ def test_empty_cart():
     assert [] == receipt.discounts
 
 
-def test_cart_without_discount():
-    """
-    Cenário: Carrinho com múltiplos produtos sem nenhuma promoção ativa no caixa.
-    Objetivo: Garantir o cálculo do valor bruto sem aplicação de descontos.
-    """
+def test_cart_without_discount() -> None:
+    """Garante o cálculo do valor bruto sem aplicação de descontos."""
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
     catalog.add_product(toothbrush, 0.99)
@@ -92,11 +83,8 @@ def test_cart_without_discount():
     assert 2 == len(receipt.items)
 
 
-def test_ten_percent_discount_applied():
-    """
-    Cenário: Escova de dente tem 10% de desconto e o cliente compra 1 escova.
-    Objetivo: Garantir que o desconto percentual de 10% seja calculado e aplicado no recibo.
-    """
+def test_ten_percent_discount_applied() -> None:
+    """Garante que o desconto percentual de 10% seja calculado e aplicado."""
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
     catalog.add_product(toothbrush, 0.99)
@@ -116,11 +104,8 @@ def test_ten_percent_discount_applied():
     assert "10.0% off" == receipt.discounts[0].description
 
 
-def test_three_for_two_discount_exact_quantity():
-    """
-    Cenário: Promoção 'Leve 3 pague 2' com exatamente 3 itens no carrinho.
-    Objetivo: Garantir que o cliente pague apenas por 2 unidades.
-    """
+def test_three_for_two_discount_exact_quantity() -> None:
+    """Garante que na promoção 'Leve 3 pague 2' com 3 itens paga-se apenas 2."""
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
     catalog.add_product(toothbrush, 0.99)
@@ -139,11 +124,8 @@ def test_three_for_two_discount_exact_quantity():
     assert -0.99 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-def test_three_for_two_discount_with_extra_item():
-    """
-    Cenário: Promoção 'Leve 3 pague 2' com 4 itens no carrinho.
-    Objetivo: 3 itens entram na promoção (paga 2) e o 4º item paga o valor integral.
-    """
+def test_three_for_two_discount_with_extra_item() -> None:
+    """Garante que em 'Leve 3 pague 2' com 4 itens, o 4º paga valor integral."""
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
     catalog.add_product(toothbrush, 0.99)
@@ -162,11 +144,8 @@ def test_three_for_two_discount_with_extra_item():
     assert -0.99 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-def test_three_for_two_not_enough_items():
-    """
-    Cenário: Promoção 'Leve 3 pague 2' com apenas 2 itens no carrinho.
-    Objetivo: Garantir que a promoção não seja aplicada antes de atingir a quantidade mínima.
-    """
+def test_three_for_two_not_enough_items() -> None:
+    """Garante que 'Leve 3 pague 2' não é aplicada com apenas 2 itens."""
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
     catalog.add_product(toothbrush, 0.99)
@@ -183,11 +162,8 @@ def test_three_for_two_not_enough_items():
     assert [] == receipt.discounts
 
 
-def test_same_product_added_separately_combines_for_offer():
-    """
-    Cenário: Mesmo produto adicionado 1 unidade por vez (3 chamadas de add_item).
-    Objetivo: Garantir que o carrinho consolida as quantidades antes de aplicar a promoção.
-    """
+def test_same_product_added_separately_combines_for_offer() -> None:
+    """Garante que o carrinho consolida adições separadas antes da promoção."""
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
     catalog.add_product(toothbrush, 0.99)
@@ -207,11 +183,8 @@ def test_same_product_added_separately_combines_for_offer():
     assert -0.99 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-def test_two_for_amount_discount_exact_quantity():
-    """
-    Cenário: Promoção '2 por R$ 3,00' em um item que custa R$ 2,00 cada.
-    Objetivo: Garantir o desconto de R$ 1,00 ao levar exatamente 2 unidades.
-    """
+def test_two_for_amount_discount_exact_quantity() -> None:
+    """Garante desconto de R$ 1,00 em '2 por R$ 3,00' levando 2 unidades."""
     catalog = FakeCatalog()
     cherry_tomatoes = Product("cherry tomatoes", ProductUnit.EACH)
     catalog.add_product(cherry_tomatoes, 2.00)
@@ -229,11 +202,8 @@ def test_two_for_amount_discount_exact_quantity():
     assert -1.00 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-def test_two_for_amount_discount_with_extra_item():
-    """
-    Cenário: Promoção '2 por R$ 3,00' levando 3 unidades (R$ 2,00 cada).
-    Objetivo: 2 itens saem por R$ 3,00 + 1 item avulso por R$ 2,00 = R$ 5,00.
-    """
+def test_two_for_amount_discount_with_extra_item() -> None:
+    """Garante '2 por R$ 3,00' levando 3 unidades (2 por 3,00 + 1 por 2,00)."""
     catalog = FakeCatalog()
     cherry_tomatoes = Product("cherry tomatoes", ProductUnit.EACH)
     catalog.add_product(cherry_tomatoes, 2.00)
@@ -251,11 +221,8 @@ def test_two_for_amount_discount_with_extra_item():
     assert -1.00 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-def test_five_for_amount_discount_exact_quantity():
-    """
-    Cenário: Promoção '5 por R$ 7,49' em pasta de dente que custa R$ 1,79 cada.
-    Objetivo: Garantir o desconto correto ao levar exatamente 5 unidades.
-    """
+def test_five_for_amount_discount_exact_quantity() -> None:
+    """Garante o desconto correto em '5 por R$ 7,49' levando 5 unidades."""
     catalog = FakeCatalog()
     toothpaste = Product("toothpaste", ProductUnit.EACH)
     catalog.add_product(toothpaste, 1.79)
@@ -274,11 +241,8 @@ def test_five_for_amount_discount_exact_quantity():
     assert -1.46 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-def test_five_for_amount_discount_with_extra_item():
-    """
-    Cenário: Promoção '5 por R$ 7,49' levando 6 unidades (R$ 1,79 cada).
-    Objetivo: 5 itens saem por R$ 7,49 + 1 item avulso por R$ 1,79 = R$ 9,28.
-    """
+def test_five_for_amount_discount_with_extra_item() -> None:
+    """Garante '5 por R$ 7,49' levando 6 unidades (5 por 7,49 + 1 por 1,79)."""
     catalog = FakeCatalog()
     toothpaste = Product("toothpaste", ProductUnit.EACH)
     catalog.add_product(toothpaste, 1.79)
@@ -304,12 +268,11 @@ def test_five_for_amount_discount_with_extra_item():
 # ==============================================================================
 
 
-@pytest.mark.skip(reason="Aguardando refatoração SOLID e implementação da oferta de Combo")
-def test_combo_exact_items():
-    """
-    Cenário: Carrinho com exatamente 2 pastas de dente e 1 escova de dente.
-    Objetivo: Aplicar exatamente 1 desconto de combo.
-    """
+@pytest.mark.skip(
+    reason="Aguardando refatoração SOLID e implementação da oferta de Combo"
+)
+def test_combo_exact_items() -> None:
+    """Aplica exatamente 1 desconto de combo para 2 pastas e 1 escova."""
     catalog = FakeCatalog()
     toothpaste = Product("toothpaste", ProductUnit.EACH)
     catalog.add_product(toothpaste, 2.00)
@@ -318,7 +281,7 @@ def test_combo_exact_items():
 
     teller = Teller(catalog)
     # TODO: Registrar a oferta de combo após implementar (ex: ComboOffer)
-    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, discount_percent=10.0))
+    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
 
     cart = ShoppingCart()
     cart.add_item_quantity(toothpaste, 2)
@@ -331,12 +294,11 @@ def test_combo_exact_items():
     assert -0.50 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-@pytest.mark.skip(reason="Aguardando refatoração SOLID e implementação da oferta de Combo")
-def test_combo_with_extra_items_applies_only_once():
-    """
-    Cenário: Carrinho com 3 pastas de dente e 1 escova de dente.
-    Objetivo: Como falta outra escova, forma apenas 1 combo. A 3ª pasta paga preço normal.
-    """
+@pytest.mark.skip(
+    reason="Aguardando refatoração SOLID e implementação da oferta de Combo"
+)
+def test_combo_with_extra_items_applies_only_once() -> None:
+    """Aplica 1 combo para 3 pastas e 1 escova; a 3ª pasta paga preço normal."""
     catalog = FakeCatalog()
     toothpaste = Product("toothpaste", ProductUnit.EACH)
     catalog.add_product(toothpaste, 2.00)
@@ -345,7 +307,7 @@ def test_combo_with_extra_items_applies_only_once():
 
     teller = Teller(catalog)
     # TODO: Registrar a oferta de combo após implementar
-    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, discount_percent=10.0))
+    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
 
     cart = ShoppingCart()
     cart.add_item_quantity(toothpaste, 3)
@@ -359,12 +321,11 @@ def test_combo_with_extra_items_applies_only_once():
     assert -0.50 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-@pytest.mark.skip(reason="Aguardando refatoração SOLID e implementação da oferta de Combo")
-def test_combo_incomplete_does_not_apply():
-    """
-    Cenário: Carrinho com 2 pastas de dente, mas nenhuma escova.
-    Objetivo: Garantir que nenhum desconto seja aplicado se faltar algum item do combo.
-    """
+@pytest.mark.skip(
+    reason="Aguardando refatoração SOLID e implementação da oferta de Combo"
+)
+def test_combo_incomplete_does_not_apply() -> None:
+    """Garante que nenhum desconto é aplicado quando falta item do combo."""
     catalog = FakeCatalog()
     toothpaste = Product("toothpaste", ProductUnit.EACH)
     catalog.add_product(toothpaste, 2.00)
@@ -373,7 +334,7 @@ def test_combo_incomplete_does_not_apply():
 
     teller = Teller(catalog)
     # TODO: Registrar a oferta de combo após implementar
-    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, discount_percent=10.0))
+    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
 
     cart = ShoppingCart()
     cart.add_item_quantity(toothpaste, 2)
@@ -384,12 +345,11 @@ def test_combo_incomplete_does_not_apply():
     assert [] == receipt.discounts
 
 
-@pytest.mark.skip(reason="Aguardando refatoração SOLID e implementação da oferta de Combo")
-def test_multiple_combos():
-    """
-    Cenário: Carrinho com 4 pastas de dente e 2 escovas de dente.
-    Objetivo: Deve reconhecer e aplicar 2 combos completos.
-    """
+@pytest.mark.skip(
+    reason="Aguardando refatoração SOLID e implementação da oferta de Combo"
+)
+def test_multiple_combos() -> None:
+    """Reconhece e aplica 2 combos completos para 4 pastas e 2 escovas."""
     catalog = FakeCatalog()
     toothpaste = Product("toothpaste", ProductUnit.EACH)
     catalog.add_product(toothpaste, 2.00)
@@ -398,7 +358,7 @@ def test_multiple_combos():
 
     teller = Teller(catalog)
     # TODO: Registrar a oferta de combo após implementar
-    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, discount_percent=10.0))
+    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
 
     cart = ShoppingCart()
     cart.add_item_quantity(toothpaste, 4)
@@ -408,14 +368,13 @@ def test_multiple_combos():
 
     # Bruto: 10.00 -> 2 combos dão 1.00 de desconto -> Total: 9.00
     assert 9.00 == pytest.approx(receipt.total_price(), 0.01)
-    assert -1.00 == pytest.approx(sum(d.discount_amount for d in receipt.discounts), 0.01)
+    assert -1.00 == pytest.approx(
+        sum(d.discount_amount for d in receipt.discounts), 0.01
+    )
 
 
-def test_amount_for_quantity_not_enough_items():
-    """
-    Cenário: Promoção '2 por R$ 3,00' com apenas 1 item no carrinho.
-    Objetivo: Garantir que AmountForQuantityStrategy retorna None quando a quantidade é insuficiente.
-    """
+def test_amount_for_quantity_not_enough_items() -> None:
+    """Garante que AmountForQuantityStrategy retorna None sem quantidade mínima."""
     catalog = FakeCatalog()
     cherry_tomatoes = Product("cherry tomatoes", ProductUnit.EACH)
     catalog.add_product(cherry_tomatoes, 2.00)
@@ -432,11 +391,8 @@ def test_amount_for_quantity_not_enough_items():
     assert [] == receipt.discounts
 
 
-def test_offer_factory_custom_strategy_and_legacy_offer():
-    """
-    Cenário: Uso direto de OfferStrategy na fábrica, erro para tipo inválido e compatibilidade com Offer legado.
-    Objetivo: Garantir cobertura total de OfferFactory e retrocompatibilidade de ShoppingCart.handle_offers.
-    """
+def test_offer_factory_custom_strategy_and_legacy_offer() -> None:
+    """Valida OfferFactory com estratégia direta, erro inválido e Offer legado."""
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
     catalog.add_product(toothbrush, 1.00)
@@ -452,17 +408,16 @@ def test_offer_factory_custom_strategy_and_legacy_offer():
     cart.add_item_quantity(toothbrush, 3)
     receipt = Teller(catalog).checks_out_articles_from(ShoppingCart())
 
-    legacy_offers = {toothbrush: Offer(SpecialOfferType.THREE_FOR_TWO, toothbrush, None)}
+    legacy_offers = {
+        toothbrush: Offer(SpecialOfferType.THREE_FOR_TWO, toothbrush, None)
+    }
     cart.handle_offers(receipt, legacy_offers, catalog)
     assert 1 == len(receipt.discounts)
     assert -1.00 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-def test_teller_product_with_name():
-    """
-    Cenário: Consulta de produto por nome no operador de caixa (Teller).
-    Objetivo: Garantir retorno do produto cadastrado e None para produto inexistente.
-    """
+def test_teller_product_with_name() -> None:
+    """Garante retorno do produto cadastrado e None para produto inexistente."""
     catalog = FakeCatalog()
     apples = Product("apples", ProductUnit.KILO)
     catalog.add_product(apples, 1.99)
@@ -473,10 +428,11 @@ def test_teller_product_with_name():
     assert teller.product_with_name("nonexistent") is None
 
 
-def test_invariants_validation_rules():
-    """
-    Cenário: Validação das invariantes de negócio INV-01, INV-02, INV-03, INV-04 e INV-05.
-    Objetivo: Garantir que valores inválidos de desconto, preço, quantidade e unidade sejam rejeitados.
+def test_invariants_validation_rules() -> None:
+    """Valida invariantes de negócio INV-02, INV-03, INV-04 e INV-05.
+
+    Garante que valores inválidos de desconto, preço, quantidade e unidade sejam
+    rejeitados.
     """
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
@@ -513,11 +469,8 @@ def test_invariants_validation_rules():
         cart.add_item_quantity(toothbrush, 1.5)
 
 
-def test_invariant_immutability_and_defensive_copies():
-    """
-    Cenário: Tentativa de mutação externa nas coleções de ShoppingCart e Receipt e alterações pós-checkout (INV-06).
-    Objetivo: Garantir que cópias defensivas protejam o estado interno do carrinho e do recibo.
-    """
+def test_invariant_immutability_and_defensive_copies() -> None:
+    """Valida INV-01 e INV-06 (cópias defensivas e imutabilidade pós-checkout)."""
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
     catalog.add_product(toothbrush, 1.50)
@@ -543,7 +496,7 @@ def test_invariant_immutability_and_defensive_copies():
     )
     assert expected_balance == pytest.approx(initial_total, 0.001)
 
-    # INV-06: Alterações no carrinho pós-checkout ou nas listas retornadas pelo recibo não alteram o recibo gerado
+    # INV-06: Alterações no carrinho ou listas retornadas não afetam o recibo
     cart.add_item(toothbrush)
     receipt.items.clear()
     receipt.discounts.clear()
@@ -551,6 +504,3 @@ def test_invariant_immutability_and_defensive_copies():
     assert 1 == len(receipt.items)
     assert 1 == len(receipt.discounts)
     assert initial_total == pytest.approx(receipt.total_price(), 0.001)
-
-
-

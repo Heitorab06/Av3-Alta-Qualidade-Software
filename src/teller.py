@@ -1,6 +1,4 @@
-"""Módulo do operador de caixa (Teller) responsável pelo fluxo de checkout e registro de ofertas."""
-
-from typing import Optional, Union
+"""Operador de caixa (Teller) responsável por checkout e registro de ofertas."""
 
 from catalog import CatalogReader
 from model_objects import Product, SpecialOfferType
@@ -10,18 +8,18 @@ from shopping_cart import ShoppingCart
 
 
 class Teller:
-    """
-    Representa o operador de caixa do supermercado.
-    Responsável por gerenciar as ofertas vigentes e realizar o checkout dos carrinhos de compra.
+    """Representa o operador de caixa do supermercado.
+
+    Gerencia as ofertas vigentes e realiza o checkout dos carrinhos de compra.
     """
 
     def __init__(
         self,
         catalog: CatalogReader,
-        receipt_factory: Optional[ReceiptFactory] = None,
-        offer_factory: Optional[OfferFactory] = None,
+        receipt_factory: ReceiptFactory | None = None,
+        offer_factory: OfferFactory | None = None,
     ) -> None:
-        """Inicializa o operador de caixa com o catálogo de leitura e as fábricas de recibo e oferta."""
+        """Inicializa o caixa com catálogo de leitura e fábricas opcionais."""
         self.catalog: CatalogReader = catalog
         self.receipt_factory: ReceiptFactory = receipt_factory or ReceiptFactory()
         self.offer_factory: OfferFactory = offer_factory or OfferFactory()
@@ -29,20 +27,19 @@ class Teller:
 
     def add_special_offer(
         self,
-        offer_type: Union[SpecialOfferType, OfferStrategy],
+        offer_type: SpecialOfferType | OfferStrategy,
         product: Product,
-        argument: Optional[float] = None,
+        argument: float | None = None,
     ) -> None:
-        """Cadastra uma promoção/oferta ativa para um produto específico usando a fábrica de ofertas."""
+        """Cadastra uma oferta ativa para um produto usando a fábrica de ofertas."""
         self.offers[product] = self.offer_factory.create_offer(offer_type, argument)
 
     def checks_out_articles_from(self, the_cart: ShoppingCart) -> Receipt:
-        """
-        Processa as compras do carrinho:
+        """Processa as compras do carrinho e retorna o recibo finalizado.
+
         1. Cria o recibo por meio da fábrica (ReceiptFactory).
         2. Consulta o preço unitário e calcula o valor total de cada item.
         3. Delega o cálculo das ofertas e descontos.
-        Retorna o recibo finalizado (Receipt).
         """
         receipt = self.receipt_factory.create_receipt()
         product_quantities = the_cart.items
@@ -57,6 +54,6 @@ class Teller:
 
         return receipt
 
-    def product_with_name(self, name: str) -> Optional[Product]:
-        """Busca um produto no catálogo pelo nome por meio do contrato de leitura (CatalogReader)."""
+    def product_with_name(self, name: str) -> Product | None:
+        """Busca um produto no catálogo pelo nome via contrato CatalogReader."""
         return self.catalog.find_product_by_name(name)

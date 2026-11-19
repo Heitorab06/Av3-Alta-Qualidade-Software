@@ -7,10 +7,10 @@ from tests.fake_catalog import FakeCatalog
 from tests.receipt_printer import ReceiptPrinter
 
 
-def test_print_empty_receipt():
-    """
-    Cenário: Impressão de recibo de um carrinho vazio.
-    Objetivo: Garantir que o cabeçalho esteja vazio e o total exiba 0.00 alinhado às 40 colunas.
+def test_print_empty_receipt() -> None:
+    """Valida a impressão de recibo para carrinho vazio.
+
+    Garante que o cabeçalho esteja vazio e o total exiba 0.00 em 40 colunas.
     """
     catalog = FakeCatalog()
     teller = Teller(catalog)
@@ -19,17 +19,14 @@ def test_print_empty_receipt():
     receipt = teller.checks_out_articles_from(cart)
     printed = ReceiptPrinter().print_receipt(receipt)
 
-    expected = (
-        "\n"
-        "Total:                              0.00\n"
-    )
+    expected = "\nTotal:                              0.00\n"
     assert printed == expected
 
 
-def test_print_receipt_single_each_item():
-    """
-    Cenário: 1 unidade de produto vendido por unidade (EACH), sem descontos.
-    Objetivo: Garantir que não imprime sublinha de detalhamento quando quantidade == 1.
+def test_print_receipt_single_each_item() -> None:
+    """Valida a impressão de 1 unidade de produto EACH sem descontos.
+
+    Garante que não imprime sublinha de detalhamento quando quantidade == 1.
     """
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
@@ -50,11 +47,10 @@ def test_print_receipt_single_each_item():
     assert printed == expected
 
 
-def test_print_receipt_kilo_item_and_multiple_quantities():
-    """
-    Cenário: Produto vendido por quilo (KILO) com quantidade fracionada (2.5 kg)
-    e produto por unidade (EACH) com quantidade > 1.
-    Objetivo: Validar a formatação com 3 casas decimais para KILO e sublinhas de quantidade.
+def test_print_receipt_kilo_item_and_multiple_quantities() -> None:
+    """Valida impressão de item KILO fracionado e item EACH com quantidade > 1.
+
+    Valida 3 casas decimais para KILO e sublinhas de quantidade.
     """
     catalog = FakeCatalog()
     apples = Product("apples", ProductUnit.KILO)
@@ -81,10 +77,10 @@ def test_print_receipt_kilo_item_and_multiple_quantities():
     assert printed == expected
 
 
-def test_print_receipt_with_discount():
-    """
-    Cenário: Compra com oferta 'Leve 3 pague 2' aplicada.
-    Objetivo: Garantir que a linha de desconto e o total líquido sejam impressos corretamente.
+def test_print_receipt_with_discount() -> None:
+    """Valida impressão de cupom com oferta 'Leve 3 pague 2' aplicada.
+
+    Garante que a linha de desconto e o total líquido sejam impressos.
     """
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
@@ -109,10 +105,10 @@ def test_print_receipt_with_discount():
     assert printed == expected
 
 
-def test_print_receipt_mixed_offers_and_items():
-    """
-    Cenário: Compra mista com múltiplos produtos (EACH e KILO) e múltiplas ofertas ativas.
-    Objetivo: Validar a formatação completa do cupom em cenários combinados (Golden Master).
+def test_print_receipt_mixed_offers_and_items() -> None:
+    """Valida impressão de compra mista com múltiplos produtos e ofertas ativas.
+
+    Cobre a formatação completa do cupom em cenários combinados.
     """
     catalog = FakeCatalog()
     toothbrush = Product("toothbrush", ProductUnit.EACH)
@@ -156,4 +152,3 @@ def test_print_receipt_mixed_offers_and_items():
         "Total:                             13.64\n"
     )
     assert printed == expected
-
