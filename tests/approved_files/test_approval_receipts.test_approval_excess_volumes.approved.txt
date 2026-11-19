@@ -1,0 +1,11 @@
+toothbrush                          6.93
+  0.99 * 7
+cherry tomatoes                     3.45
+  0.69 * 5
+toothpaste                         21.48
+  1.79 * 12
+3 for 2 (toothbrush)               -1.98
+2 for 0.99 (cherry tomatoes)       -0.78
+5 for 7.49 (toothpaste)            -2.92
+
+Total:                             26.18

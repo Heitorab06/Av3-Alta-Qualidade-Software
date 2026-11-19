@@ -1,0 +1,7 @@
+toothbrush                          0.99
+apples                              4.97
+  1.99 * 2.500
+rice                                4.98
+  2.49 * 2
+
+Total:                             10.95

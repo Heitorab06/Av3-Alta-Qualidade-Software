@@ -1,0 +1,5 @@
+cherry tomatoes                     1.38
+  0.69 * 2
+2 for 0.99 (cherry tomatoes)       -0.39
+
+Total:                              0.99

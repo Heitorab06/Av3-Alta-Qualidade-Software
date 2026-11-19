@@ -1,0 +1,17 @@
+toothbrush                          2.97
+  0.99 * 3
+apples                              3.98
+  1.99 * 2.000
+toothpaste                          8.95
+  1.79 * 5
+cherry tomatoes                     1.38
+  0.69 * 2
+bread                               3.50
+bananas                             2.75
+  2.20 * 1.250
+3 for 2 (toothbrush)               -0.99
+20.0% off (apples)                 -0.80
+5 for 7.49 (toothpaste)            -1.46
+2 for 0.99 (cherry tomatoes)       -0.39
+
+Total:                             19.89
