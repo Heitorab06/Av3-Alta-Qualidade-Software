@@ -1,4 +1,4 @@
-pytest
-approvaltests
-pytest-approvaltests
-coverage
+pytest>=9.2.0
+approvaltests>=20.0.1
+pytest-approvaltests>=0.2.4
+coverage>=7.17.2
