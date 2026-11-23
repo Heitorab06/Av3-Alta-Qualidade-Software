@@ -2,7 +2,7 @@
 
 from catalog import CatalogReader
 from model_objects import Product, SpecialOfferType
-from offers import OfferFactory, OfferStrategy, is_pdv_emergency_mode
+from offers import ComboOffer, OfferFactory, OfferStrategy, is_pdv_emergency_mode
 from receipt import Receipt, ReceiptFactory
 from shopping_cart import ShoppingCart
 
@@ -27,6 +27,7 @@ class Teller:
         self.offer_factory: OfferFactory = offer_factory or OfferFactory()
         self._emergency_mode: bool | None = emergency_mode
         self.offers: dict[Product, OfferStrategy] = {}
+        self.combo_offers: list[ComboOffer] = []
 
     @property
     def emergency_mode(self) -> bool:
@@ -45,11 +46,16 @@ class Teller:
 
     def add_special_offer(
         self,
-        offer_type: SpecialOfferType | OfferStrategy,
-        product: Product,
+        offer_type: SpecialOfferType | OfferStrategy | ComboOffer,
+        product: Product | None = None,
         argument: float | None = None,
     ) -> None:
-        """Cadastra uma oferta ativa para um produto usando a fábrica de ofertas."""
+        """Cadastra uma oferta individual de produto ou uma oferta de combo."""
+        if isinstance(offer_type, ComboOffer):
+            self.combo_offers.append(offer_type)
+            return
+        if product is None:
+            raise ValueError("O produto é obrigatório para ofertas individuais.")
         self.offers[product] = self.offer_factory.create_offer(offer_type, argument)
 
     def checks_out_articles_from(self, the_cart: ShoppingCart) -> Receipt:
@@ -69,7 +75,9 @@ class Teller:
             receipt.add_product(product, quantity, unit_price, price)
 
         if not self.emergency_mode:
-            the_cart.handle_offers(receipt, self.offers, self.catalog)
+            the_cart.handle_offers(
+                receipt, self.offers, self.catalog, self.combo_offers
+            )
 
         return receipt
 

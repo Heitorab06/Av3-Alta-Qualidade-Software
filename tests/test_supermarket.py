@@ -5,6 +5,7 @@ import pytest
 from model_objects import Discount, Offer, Product, ProductUnit, SpecialOfferType
 from offers import (
     AmountForQuantityStrategy,
+    ComboOffer,
     OfferFactory,
     PercentageDiscountStrategy,
     ThreeForTwoStrategy,
@@ -261,16 +262,13 @@ def test_five_for_amount_discount_with_extra_item() -> None:
 
 
 # ==============================================================================
-# TESTES DA NOVA FUNCIONALIDADE: PROMOÇÃO DE COMBO (TDD / Aguardando Implementação)
+# TESTES DA FUNCIONALIDADE: PROMOÇÃO DE COMBO
 # Exemplo de regra assumida nos testes abaixo:
 # Combo = 2 pastas de dente (R$ 2,00 cada) + 1 escova (R$ 1,00 cada) = R$ 5,00 bruto
 # Com 10% de desconto no combo = desconto de R$ 0,50 -> Total do combo: R$ 4,50
 # ==============================================================================
 
 
-@pytest.mark.skip(
-    reason="Aguardando refatoração SOLID e implementação da oferta de Combo"
-)
 def test_combo_exact_items() -> None:
     """Aplica exatamente 1 desconto de combo para 2 pastas e 1 escova."""
     catalog = FakeCatalog()
@@ -280,8 +278,7 @@ def test_combo_exact_items() -> None:
     catalog.add_product(toothbrush, 1.00)
 
     teller = Teller(catalog)
-    # TODO: Registrar a oferta de combo após implementar (ex: ComboOffer)
-    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
+    teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
 
     cart = ShoppingCart()
     cart.add_item_quantity(toothpaste, 2)
@@ -294,9 +291,6 @@ def test_combo_exact_items() -> None:
     assert -0.50 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-@pytest.mark.skip(
-    reason="Aguardando refatoração SOLID e implementação da oferta de Combo"
-)
 def test_combo_with_extra_items_applies_only_once() -> None:
     """Aplica 1 combo para 3 pastas e 1 escova; a 3ª pasta paga preço normal."""
     catalog = FakeCatalog()
@@ -306,8 +300,7 @@ def test_combo_with_extra_items_applies_only_once() -> None:
     catalog.add_product(toothbrush, 1.00)
 
     teller = Teller(catalog)
-    # TODO: Registrar a oferta de combo após implementar
-    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
+    teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
 
     cart = ShoppingCart()
     cart.add_item_quantity(toothpaste, 3)
@@ -321,9 +314,6 @@ def test_combo_with_extra_items_applies_only_once() -> None:
     assert -0.50 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
 
 
-@pytest.mark.skip(
-    reason="Aguardando refatoração SOLID e implementação da oferta de Combo"
-)
 def test_combo_incomplete_does_not_apply() -> None:
     """Garante que nenhum desconto é aplicado quando falta item do combo."""
     catalog = FakeCatalog()
@@ -333,8 +323,7 @@ def test_combo_incomplete_does_not_apply() -> None:
     catalog.add_product(toothbrush, 1.00)
 
     teller = Teller(catalog)
-    # TODO: Registrar a oferta de combo após implementar
-    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
+    teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
 
     cart = ShoppingCart()
     cart.add_item_quantity(toothpaste, 2)
@@ -345,9 +334,6 @@ def test_combo_incomplete_does_not_apply() -> None:
     assert [] == receipt.discounts
 
 
-@pytest.mark.skip(
-    reason="Aguardando refatoração SOLID e implementação da oferta de Combo"
-)
 def test_multiple_combos() -> None:
     """Reconhece e aplica 2 combos completos para 4 pastas e 2 escovas."""
     catalog = FakeCatalog()
@@ -357,8 +343,7 @@ def test_multiple_combos() -> None:
     catalog.add_product(toothbrush, 1.00)
 
     teller = Teller(catalog)
-    # TODO: Registrar a oferta de combo após implementar
-    # teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
+    teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
 
     cart = ShoppingCart()
     cart.add_item_quantity(toothpaste, 4)
@@ -371,6 +356,106 @@ def test_multiple_combos() -> None:
     assert -1.00 == pytest.approx(
         sum(d.discount_amount for d in receipt.discounts), 0.01
     )
+
+
+def test_combo_ignored_when_product_already_has_offer() -> None:
+    """Mantém apenas a promoção individual se um item do combo já estiver em oferta."""
+    catalog = FakeCatalog()
+    toothpaste = Product("toothpaste", ProductUnit.EACH)
+    catalog.add_product(toothpaste, 2.00)
+    toothbrush = Product("toothbrush", ProductUnit.EACH)
+    catalog.add_product(toothbrush, 1.00)
+
+    teller = Teller(catalog)
+    teller.add_special_offer(SpecialOfferType.TEN_PERCENT_DISCOUNT, toothpaste, 20.0)
+    teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
+
+    cart = ShoppingCart()
+    cart.add_item_quantity(toothpaste, 2)
+    cart.add_item_quantity(toothbrush, 1)
+
+    receipt = teller.checks_out_articles_from(cart)
+
+    # Bruto: 5.00 -> apenas 20% na pasta (-0.80), sem combo -> Total: 4.20
+    assert 4.20 == pytest.approx(receipt.total_price(), 0.01)
+    assert 1 == len(receipt.discounts)
+    assert receipt.discounts[0].product is toothpaste
+    assert -0.80 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
+
+
+def test_combo_coexists_with_offer_on_unrelated_product() -> None:
+    """Aplica o combo e a oferta de outro produto não pertencente ao combo."""
+    catalog = FakeCatalog()
+    toothpaste = Product("toothpaste", ProductUnit.EACH)
+    catalog.add_product(toothpaste, 2.00)
+    toothbrush = Product("toothbrush", ProductUnit.EACH)
+    catalog.add_product(toothbrush, 1.00)
+    apples = Product("apples", ProductUnit.KILO)
+    catalog.add_product(apples, 2.00)
+
+    teller = Teller(catalog)
+    teller.add_special_offer(SpecialOfferType.TEN_PERCENT_DISCOUNT, apples, 10.0)
+    teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
+
+    cart = ShoppingCart()
+    cart.add_item_quantity(toothpaste, 2)
+    cart.add_item_quantity(toothbrush, 1)
+    cart.add_item_quantity(apples, 2.0)
+
+    receipt = teller.checks_out_articles_from(cart)
+
+    # Bruto: 5.00 (combo) + 4.00 (maçãs) = 9.00
+    # Descontos: -0.40 (10% maçãs) e -0.50 (10% combo) -> Total: 8.10
+    assert 8.10 == pytest.approx(receipt.total_price(), 0.01)
+    assert 2 == len(receipt.discounts)
+    assert -0.90 == pytest.approx(
+        sum(d.discount_amount for d in receipt.discounts), 0.01
+    )
+
+
+def test_two_combos_sharing_product_do_not_double_discount() -> None:
+    """Garante que itens consumidos por um combo não sejam reutilizados por outro."""
+    catalog = FakeCatalog()
+    toothpaste = Product("toothpaste", ProductUnit.EACH)
+    catalog.add_product(toothpaste, 2.00)
+    toothbrush = Product("toothbrush", ProductUnit.EACH)
+    catalog.add_product(toothbrush, 1.00)
+    soap = Product("soap", ProductUnit.EACH)
+    catalog.add_product(soap, 3.00)
+
+    teller = Teller(catalog)
+    teller.add_special_offer(ComboOffer({toothpaste: 2, toothbrush: 1}, 10.0))
+    teller.add_special_offer(ComboOffer({toothpaste: 2, soap: 1}, 10.0))
+
+    cart = ShoppingCart()
+    cart.add_item_quantity(toothpaste, 2)
+    cart.add_item_quantity(toothbrush, 1)
+    cart.add_item_quantity(soap, 1)
+
+    receipt = teller.checks_out_articles_from(cart)
+
+    # Bruto: 4.00 + 1.00 + 3.00 = 8.00 -> apenas 1º combo (-0.50) -> Total: 7.50
+    assert 7.50 == pytest.approx(receipt.total_price(), 0.01)
+    assert 1 == len(receipt.discounts)
+    assert -0.50 == pytest.approx(receipt.discounts[0].discount_amount, 0.01)
+
+
+def test_combo_offer_validation_and_teller_requires_product() -> None:
+    """Valida invariantes de ComboOffer e obrigatoriedade de produto no Teller."""
+    catalog = FakeCatalog()
+    toothpaste = Product("toothpaste", ProductUnit.EACH)
+    teller = Teller(catalog)
+
+    with pytest.raises(ValueError):
+        ComboOffer({}, 10.0)
+    with pytest.raises(ValueError):
+        ComboOffer({toothpaste: 0}, 10.0)
+    with pytest.raises(ValueError):
+        ComboOffer({toothpaste: 2}, -5.0)
+    with pytest.raises(ValueError):
+        ComboOffer({toothpaste: 2}, 120.0)
+    with pytest.raises(ValueError):
+        teller.add_special_offer(SpecialOfferType.THREE_FOR_TWO)
 
 
 def test_amount_for_quantity_not_enough_items() -> None:

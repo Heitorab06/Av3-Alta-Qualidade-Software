@@ -2,8 +2,10 @@
 
 import os
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 
-from model_objects import Discount, Offer, Product, SpecialOfferType
+from catalog import CatalogReader
+from model_objects import Discount, Offer, Product, ProductUnit, SpecialOfferType
 
 _FALSY_VALUES = {"false", "0", "no", "off"}
 _TRUTHY_VALUES = {"true", "1", "yes", "on"}
@@ -102,6 +104,59 @@ class AmountForQuantityStrategy(OfferStrategy):
         return Discount(
             product,
             f"{self.required_quantity} for {self.amount}",
+            -discount_amount,
+        )
+
+
+class ComboOffer:
+    """Estratégia de promoção de combo aplicada a um conjunto de produtos."""
+
+    def __init__(
+        self,
+        required_items: Mapping[Product, float],
+        discount_percent: float,
+    ) -> None:
+        """Inicializa o combo com os produtos exigidos e o percentual de desconto."""
+        if not required_items or any(
+            quantity <= 0.0 for quantity in required_items.values()
+        ):
+            raise ValueError(
+                "O combo deve conter itens com quantidades maiores que zero (INV-04)."
+            )
+        if discount_percent < 0.0 or discount_percent > 100.0:
+            raise ValueError(
+                "O percentual de desconto deve estar entre 0 e 100 (INV-03)."
+            )
+        self.required_items: dict[Product, float] = dict(required_items)
+        self.discount_percent: float = discount_percent
+
+    def calculate_discount(
+        self,
+        available_quantities: dict[Product, float],
+        catalog: CatalogReader,
+    ) -> Discount | None:
+        """Calcula o desconto de combos completos e consome os itens utilizados."""
+        combo_count = min(
+            int(available_quantities.get(product, 0.0) // required_qty)
+            for product, required_qty in self.required_items.items()
+        )
+        if combo_count <= 0:
+            return None
+
+        combo_unit_price = sum(
+            catalog.unit_price(product) * required_qty
+            for product, required_qty in self.required_items.items()
+        )
+        discount_amount = (
+            combo_count * combo_unit_price * (self.discount_percent / 100.0)
+        )
+
+        for product, required_qty in self.required_items.items():
+            available_quantities[product] -= combo_count * required_qty
+
+        return Discount(
+            Product("combo", ProductUnit.EACH),
+            f"{self.discount_percent}% off",
             -discount_amount,
         )
 

@@ -1,11 +1,12 @@
 """Carrinho de compras responsável pelo armazenamento e consolidação de itens."""
 
 import logging
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 from catalog import CatalogReader
 from model_objects import Discount, Offer, Product, ProductQuantity, ProductUnit
 from offers import (
+    ComboOffer,
     OfferFactory,
     OfferStrategy,
     calculate_legacy_discount,
@@ -65,11 +66,13 @@ class ShoppingCart:
         receipt: Receipt,
         offers: Mapping[Product, OfferStrategy | Offer],
         catalog: CatalogReader,
+        combo_offers: Sequence[ComboOffer] = (),
     ) -> None:
         """Delega o cálculo de descontos às estratégias com fallback legado (Nível 1).
 
-        Respeita a feature toggle ENABLE_STRATEGY_OFFERS e realiza comutação
-        automática para o motor legado em caso de exceção ou inconsistência.
+        Respeita a feature toggle ENABLE_STRATEGY_OFFERS, realiza comutação
+        automática para o motor legado em caso de exceção ou inconsistência
+        e aplica ofertas de combo apenas sobre produtos sem oferta individual.
         """
         offer_factory = OfferFactory()
         use_strategy = is_strategy_offers_enabled()
@@ -84,6 +87,17 @@ class ShoppingCart:
             )
             if discount is not None:
                 receipt.add_discount(discount)
+
+        if use_strategy and combo_offers:
+            available_quantities = {
+                product: quantity
+                for product, quantity in self._product_quantities.items()
+                if product not in offers
+            }
+            for combo in combo_offers:
+                discount = combo.calculate_discount(available_quantities, catalog)
+                if discount is not None:
+                    receipt.add_discount(discount)
 
     def _calculate_offer_discount(
         self,
