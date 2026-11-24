@@ -1,0 +1,96 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1,
+        "nome": "Beiru / Tancredo Neves",
+        "codigo_ibge": "2927408001",
+        "tipo": "Bairro",
+        "populacao": 52340,
+        "renda_media": 1120.50,
+        "taxa_esgoto_inadequado": 28.4,
+        "taxa_ilum_inadequada": 16.2,
+        "ievs": 0.68,
+        "grau_vulnerabilidade": "Alta"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-38.4610, -12.9465],
+            [-38.4550, -12.9405],
+            [-38.4470, -12.9400],
+            [-38.4405, -12.9450],
+            [-38.4390, -12.9520],
+            [-38.4440, -12.9575],
+            [-38.4520, -12.9590],
+            [-38.4585, -12.9545],
+            [-38.4610, -12.9465]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 2,
+        "nome": "Pernambués",
+        "codigo_ibge": "2927408002",
+        "tipo": "Bairro",
+        "populacao": 64890,
+        "renda_media": 1280.00,
+        "taxa_esgoto_inadequado": 22.8,
+        "taxa_ilum_inadequada": 12.5,
+        "ievs": 0.58,
+        "grau_vulnerabilidade": "Média-Alta"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-38.4735, -12.9640],
+            [-38.4630, -12.9605],
+            [-38.4565, -12.9665],
+            [-38.4575, -12.9740],
+            [-38.4635, -12.9815],
+            [-38.4725, -12.9805],
+            [-38.4765, -12.9735],
+            [-38.4735, -12.9640]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 3,
+        "nome": "Salvador (Média Municipal)",
+        "codigo_ibge": "2927408",
+        "tipo": "Municipio",
+        "populacao": 2418005,
+        "renda_media": 2150.00,
+        "taxa_esgoto_inadequado": 14.1,
+        "taxa_ilum_inadequada": 8.3,
+        "ievs": 0.38,
+        "grau_vulnerabilidade": "Média"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-38.5400, -13.0100],
+            [-38.4800, -13.0150],
+            [-38.4200, -12.9600],
+            [-38.3500, -12.8900],
+            [-38.3800, -12.8200],
+            [-38.4600, -12.8400],
+            [-38.5200, -12.9200],
+            [-38.5400, -13.0100]
+          ]
+        ]
+      }
+    }
+  ]
+}

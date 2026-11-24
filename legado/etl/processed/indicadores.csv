@@ -1,0 +1,18 @@
+id,codigo,nome,dimensao,unidade,classificacao
+1,POP_TOT,População Residente Total,Demografica,Habitantes,Dado observado
+2,DOM_PART,Domicílios Particulares Ocupados,Demografica,Domicílios,Dado observado
+3,DENS_MOR,Densidade de Moradores por Domicílio,Demografica,hab/domicílio,Indicador derivado
+4,REND_MED,Rendimento Médio Domiciliar per Capita,Economica,R$,Dado observado
+5,PERC_BAIXA_RENDA,Proporção Baixa Renda (<= 0.5 SM),Economica,%,Indicador derivado
+6,IVS_GERAL,Índice de Vulnerabilidade Social (IVS),Social,Índice (0-1),Dado observado
+7,TX_ESGOTO_INAD,Esgotamento Sanitário Inadequado,Habitacional,%,Indicador derivado
+8,TX_LIXO_INAD,Coleta de Lixo Inadequada,Habitacional,%,Indicador derivado
+9,TX_ILUM_INAD,Vias sem Iluminação no Entorno,Urbana,%,Indicador derivado
+10,TX_PAVIM_INAD,Vias sem Pavimentação Adequada,Urbana,%,Indicador derivado
+11,TX_ESGOTO_CEU_ABERTO,Esgoto a Céu Aberto no Entorno,Urbana,%,Indicador derivado
+12,ACESSO_ELETRICIDADE,Conexão à Rede Elétrica,Energetica,%,Dado observado
+13,EPE_CONSUMO_RES_BA,Consumo Residencial Médio (Bahia - EPE),Energetica,kWh/hab/ano,Dado observado
+14,EPE_UNIDADES_RES_BA,Consumidores Residenciais (Bahia - EPE),Energetica,Milhões,Dado observado
+15,EPE_MERCADO_GWH_BA,Mercado Total Residencial Bahia,Energetica,GWh/ano,Dado observado
+16,PROXY_FARDO_ENERGETICO,Fardo Energético Estimado,Socioenergetica,% da Renda,Proxy/estimativa
+17,IEVS_COMPOSTO,Índice Exploratório (IEVS),Socioenergetica,Índice (0-1),Indicador derivado

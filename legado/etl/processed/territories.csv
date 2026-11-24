@@ -1,0 +1,5 @@
+id,nome,codigo_ibge,tipo,territorio_pai_id,populacao,area_km2
+1,Beiru / Tancredo Neves,2927408018,Bairro,3,38329,1.6362079
+2,Pernambués,2927408117,Bairro,3,52564,3.2073876
+3,Salvador (Média Municipal),2927408,Municipio,4,2417678,693.8
+4,Bahia (Escala Estadual),29,Estado,,14141626,564733.0
