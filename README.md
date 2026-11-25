@@ -117,7 +117,7 @@ print(ReceiptPrinter().print_receipt(receipt))
 ```
 
 ### Execução em modos de contingência
-Consulte o procedimento completo em [`ROLLBACK.md`](ROLLBACK.md). Exemplos em PowerShell:
+Consulte o procedimento completo em [`ROLLBACK.md`](ROLLBACK.md) e `docs/Plano de contingência.pdf`. Exemplos em PowerShell:
 ```powershell
 # Nível 1: comutar para o motor legado
 $env:ENABLE_STRATEGY_OFFERS = "false"
@@ -130,7 +130,7 @@ $env:PDV_EMERGENCY_MODE = "true"
 
 ## Testes
 
-O arquivo [`pytest.ini`](pytest.ini) já configura `pythonpath = src tests` e `testpaths = tests`.
+O arquivo [`pytest.ini`](pytest.ini) já configura `pythonpath = src tests` e `testpaths = tests`. As evidências consolidadas de execução também estão disponíveis em `docs/Evidências Testes.pdf`.
 
 ### Executar toda a suíte
 ```bash
@@ -159,6 +159,8 @@ Meta atingida e mantida: **100% de cobertura** em todos os módulos de `src/` (2
 ---
 
 ## Análises de Segurança e Qualidade Estática
+
+O comparativo detalhado das análises antes e depois da refatoração está documentado em `docs/Segurança Antes Depois.pdf`.
 
 ### Verificações Automatizadas
 
@@ -213,6 +215,19 @@ Av3-Alta-Qualidade-Software/
 │   ├── test_receipt_printer.py           # Testes de formatação do recibo
 │   ├── test_reversal_strategies.py       # Testes dos 3 níveis de reversão e contingência
 │   └── test_supermarket.py               # Testes unitários de checkout, invariantes e combos
+├── docs/                                 # Documentação técnica e entregáveis em PDF
+│   ├── Diagnóstico Técnico.pdf           # Levantamento inicial de problemas e débitos técnicos
+│   ├── Documentação de requisitos.pdf    # Requisitos funcionais, não funcionais e invariantes
+│   ├── Evidências Testes.pdf             # Evidências de execução e cobertura de testes
+│   ├── Padrões de Projeto.pdf            # Detalhamento dos padrões de projeto aplicados
+│   ├── Plano de contingência.pdf         # Estratégia de contingência e mitigação de falhas
+│   └── Segurança Antes Depois.pdf        # Comparativo de análises de segurança pré e pós-refatoração
+├── diagrama/                             # Diagramas de classes (editável e PDFs)
+│   ├── Diagrama_de_classe.drawio
+│   ├── Diagrama_de_classe(pré-refatoração).drawio.pdf
+│   └── Diagrama_de_classe(pós-refatoramento).drawio.pdf
+├── apresentacao/                         # Materiais da apresentação do projeto
+├── legado/                               # Projeto legado preservado para referência histórica
 ├── pyproject.toml                        # Configuração de ruff (PEP 8/257) e mypy (strict)
 ├── pytest.ini                            # Configuração do Pytest (pythonpath e descoberta)
 ├── requirements.txt                      # Dependências de teste e cobertura com versões mínimas
@@ -223,6 +238,8 @@ Av3-Alta-Qualidade-Software/
 ---
 
 ## Decisões Arquiteturais
+
+Os diagramas comparativos de arquitetura encontram-se em `diagrama/` e o detalhamento dos padrões em `docs/Padrões de Projeto.pdf`.
 
 1. **Aplicação rigorosa dos princípios SOLID:**
    - **SRP:** separação entre estado do carrinho (`ShoppingCart`), regras de cálculo promocional (`src/offers.py`), criação de recibos (`ReceiptFactory`) e orquestração de checkout (`Teller`). Essa refatoração também eliminou o bug original da divisão em ponto flutuante (`quantity_as_int / x`) em `TWO_FOR_AMOUNT`, substituindo-a por divisão inteira (`//`).
